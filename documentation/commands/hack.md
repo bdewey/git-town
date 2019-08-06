@@ -12,9 +12,10 @@ pushes the new feature branch to the remote repository.
 
 Finally, brings over all uncommitted changes to the new feature branch.
 
-Additionally, when there is a remote upstream,
-the main branch is synced with its upstream counterpart.
-This can be disabled by toggling the "new-branch-push-flag" configuration.
+Additionally, when there is a remote upstream, the main branch is synced with
+its upstream counterpart. This can be disabled by toggling the
+"new-branch-push-flag" configuration.
+
 </a>
 
 #### Usage

@@ -11,9 +11,9 @@ makes the new branch the parent of the current branch,
 pushes the new feature branch to the remote repository,
 and brings over all uncommitted changes to the new feature branch.
 
-Additionally, when there is a remote upstream,
-the main branch is synced with its upstream counterpart.
-This can be disabled by toggling the "new-branch-push-flag" configuration:
+Additionally, when there is a remote upstream, the main branch is synced with
+its upstream counterpart. This can be disabled by toggling the
+"new-branch-push-flag" configuration:
 
 ```
 git town new-branch-push-flag false
@@ -29,5 +29,6 @@ git town prepend &lt;branch&gt;
 
 #### SEE ALSO
 
-- [git append](append.md) to create a new feature branch as a child of the current branch
+- [git append](append.md) to create a new feature branch as a child of the
+  current branch
 - [git hack](hack.md) to create a new top-level feature branch

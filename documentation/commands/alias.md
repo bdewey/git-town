@@ -11,7 +11,9 @@ Example: "git append" becomes equivalent to "git town append".
 
 When adding aliases, no existing aliases will be overwritten.
 
-Note that this can conflict with other tools that also define additional Git commands.
+Note that this can conflict with other tools that also define additional Git
+commands.
+
 </a>
 
 #### Usage
