@@ -36,7 +36,14 @@ fix-cucumber:  # auto-fixes all Cucumber lint issues
 	bundle exec cucumber_lint --fix
 
 fix-markdown:  # auto-fixes all Markdown lint issues
-	node_modules/.bin/prettier --write "{,!(vendor)/**/}*.md"
+	@find . -type f \( \
+		-path '**/*.md' -o \
+		-path '**/*.yml' -o \
+		-path '**/*.json' -o \
+		-path '**/*.js' \) | \
+		grep -v node_modules | \
+		grep -v vendor | \
+		xargs node_modules/.bin/prettier --write
 
 fix-ruby:  # auto-fixes all Ruby lint issues
 	bundle exec rubocop --auto-correct
@@ -50,11 +57,17 @@ lint-cucumber:  # lints the Cucumber files
 	bundle exec cucumber_lint
 
 lint-go:  # lints the Go files
-	goimports -d src
-	gometalinter.v2
+	golangci-lint run --enable-all -D dupl -D lll -D gochecknoglobals -D gochecknoinits
 
 lint-markdown: build  # lints the Markdown files
-	node_modules/.bin/prettier -l "{,!(vendor)/**/}*.md"
+	@find . -type f \( \
+		-path '**/*.md' -o \
+		-path '**/*.yml' -o \
+		-path '**/*.json' -o \
+		-path '**/*.js' \) | \
+		grep -v node_modules | \
+		grep -v vendor | \
+		xargs node_modules/.bin/prettier -l
 	node_modules/.bin/text-run --offline
 
 lint-ruby:  # lints the Ruby files
@@ -62,9 +75,8 @@ lint-ruby:  # lints the Ruby files
 
 setup:  # the setup steps necessary on developer machines
 	curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
-	go get -u gopkg.in/alecthomas/gometalinter.v2 \
-					  github.com/onsi/ginkgo/ginkgo
-	gometalinter.v2 --install
+	curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sh -s -- -b $$(go env GOPATH)/bin v1.16.0
+	go get -u github.com/onsi/ginkgo/ginkgo
 	bundle install
 	yarn install
 
