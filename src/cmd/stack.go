@@ -15,12 +15,26 @@ var stackCmd = &cobra.Command{
 
 Shows information about the current stack of changes.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Hello, world")
+		printStackInfo()
 	},
 	Args: cobra.NoArgs,
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		return git.ValidateIsRepository()
 	},
+}
+
+func printStackInfo() {
+	currentBranch := git.GetCurrentBranchName()
+	for _, branch := range git.GetAncestorBranches(currentBranch) {
+		fmt.Println(branch)
+	}
+	currentChildren := []string{currentBranch}
+	for ; len(currentChildren) == 1; currentChildren = git.GetChildBranches(currentChildren[0]) {
+		if currentChildren[0] == currentBranch {
+			fmt.Print("* ")
+		}
+		fmt.Println(currentChildren[0])
+	}
 }
 
 func init() {
