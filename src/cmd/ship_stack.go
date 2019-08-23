@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"strings"
+
 	"github.com/Originate/exit"
 	"github.com/Originate/git-town/src/drivers"
 	"github.com/Originate/git-town/src/git"
@@ -13,9 +15,8 @@ import (
 )
 
 type shipAllConfig struct {
-	BranchToMergeInto string
-	BranchesToShip    []string
-	InitialBranch     string
+	BranchesToShip []string
+	InitialBranch  string
 }
 
 var shipAllCommitMessage string
@@ -77,7 +78,6 @@ func gitShipAllConfig(args []string) (result shipAllConfig) {
 	git.EnsureIsFeatureBranch(branchToShip, "Only feature branches can be shipped.")
 	prompt.EnsureKnowsParentBranches([]string{branchToShip})
 	ancestors := git.GetAncestorBranches(branchToShip)
-	result.BranchToMergeInto = ancestors[0]
 	result.BranchesToShip = ancestors[1:]
 	return
 }
@@ -86,8 +86,14 @@ func getShipAllStepList(config shipAllConfig) steps.StepList {
 	result := steps.StepList{}
 	var isOffline = git.IsOffline()
 	isShippingInitialBranch := config.BranchesToShip[len(config.BranchesToShip)-1] == config.InitialBranch
-	branchToMergeInto := config.BranchToMergeInto
-	for _, branchToShip := range config.BranchesToShip {
+
+	var sb strings.Builder
+	sb.WriteString(shipAllCommitMessage)
+	sb.WriteString("\n")
+
+	for index := range config.BranchesToShip {
+		branchToShip := config.BranchesToShip[len(config.BranchesToShip)-1-index]
+		branchToMergeInto := git.GetParentBranch(branchToShip)
 		result.AppendList(steps.GetSyncBranchSteps(branchToMergeInto, true))
 		result.AppendList(steps.GetSyncBranchSteps(branchToShip, false))
 		result.Append(&steps.EnsureHasShippableChangesStep{BranchName: branchToShip})
@@ -95,7 +101,9 @@ func getShipAllStepList(config shipAllConfig) steps.StepList {
 		canShipWithDriver, defaultCommitMessage := getCanShipAllWithDriver(branchToShip, branchToMergeInto)
 		if canShipWithDriver {
 			result.Append(&steps.PushBranchStep{BranchName: branchToShip})
-			result.Append(&steps.DriverMergePullRequestStep{BranchName: branchToShip, CommitMessage: shipAllCommitMessage, DefaultCommitMessage: defaultCommitMessage})
+			sb.WriteString(defaultCommitMessage)
+			sb.WriteString("\n")
+			result.Append(&steps.DriverMergePullRequestStep{BranchName: branchToShip, CommitMessage: sb.String(), DefaultCommitMessage: defaultCommitMessage})
 			result.Append(&steps.PullBranchStep{})
 		} else {
 			result.Append(&steps.SquashMergeBranchStep{BranchName: branchToShip, CommitMessage: shipAllCommitMessage})
