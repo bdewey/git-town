@@ -21,7 +21,7 @@ type shipAllConfig struct {
 var shipAllCommitMessage string
 
 var shipAllCmd = &cobra.Command{
-	Use:   "shipstack",
+	Use:   "ship-stack",
 	Short: "Deliver a stack of feature branches",
 	Long: `Deliver a stack of feature branches
 
