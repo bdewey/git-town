@@ -1,8 +1,7 @@
 package cmd
 
 import (
-	"fmt"
-
+	"github.com/Originate/git-town/src/cfmt"
 	"github.com/Originate/git-town/src/git"
 
 	"github.com/spf13/cobra"
@@ -26,14 +25,14 @@ Shows information about the current stack of changes.`,
 func printStackInfo() {
 	currentBranch := git.GetCurrentBranchName()
 	for _, branch := range git.GetAncestorBranches(currentBranch) {
-		fmt.Println(branch)
+		cfmt.Println(branch)
 	}
 	currentChildren := []string{currentBranch}
 	for ; len(currentChildren) == 1; currentChildren = git.GetChildBranches(currentChildren[0]) {
 		if currentChildren[0] == currentBranch {
-			fmt.Print("* ")
+			cfmt.Print("* ")
 		}
-		fmt.Println(currentChildren[0])
+		cfmt.Println(currentChildren[0])
 	}
 }
 
