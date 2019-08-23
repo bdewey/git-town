@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"unicode/utf8"
 
 	"github.com/Originate/git-town/src/cfmt"
@@ -59,7 +60,8 @@ func getBranchInfo() []branchInfo {
 }
 
 func printBranchInfo(branchInfo []branchInfo) {
-	longestBranchRuneCount := 0
+	longestBranchRuneCount := utf8.RuneCountInString("Branch")
+	longestPrString := 0
 	for _, info := range branchInfo {
 		currentRuneCount := utf8.RuneCountInString(info.Branch)
 		// The current branch needs to display "* " at the start
@@ -72,7 +74,22 @@ func printBranchInfo(branchInfo []branchInfo) {
 		if currentRuneCount > longestBranchRuneCount {
 			longestBranchRuneCount = currentRuneCount
 		}
+		currentPrStringCount := utf8.RuneCountInString(info.PrInfo)
+		if currentPrStringCount > longestPrString {
+			longestPrString = currentPrStringCount
+		}
 	}
+
+	fmt.Print("Branch")
+	fmt.Print(strings.Repeat(" ", longestBranchRuneCount-utf8.RuneCountInString("Branch")))
+	if longestPrString > 0 {
+		fmt.Print("Github PR")
+	}
+	fmt.Println("")
+	fmt.Print(strings.Repeat("=", longestBranchRuneCount-2))
+	fmt.Print("  ")
+	fmt.Println(strings.Repeat("=", longestPrString))
+
 	for _, info := range branchInfo {
 		if info.IsCurrent {
 			cfmt.Print("* ")
@@ -87,7 +104,7 @@ func printBranchInfo(branchInfo []branchInfo) {
 			spacesToPrint -= 2
 		}
 		cfmt.Print(strings.Repeat(" ", spacesToPrint))
-		cfmt.Println(info.Branch, info.PrInfo)
+		cfmt.Println(info.PrInfo)
 	}
 }
 
