@@ -21,6 +21,9 @@ type shipConfig struct {
 
 var commitMessage string
 
+// If true, allow shipping a feature branch to its parent even if the parent is neither a master nor perennial branch.
+var shipToParent bool
+
 var shipCmd = &cobra.Command{
 	Use:   "ship",
 	Short: "Deliver a completed feature branch",
@@ -78,7 +81,9 @@ func gitShipConfig(args []string) (result shipConfig) {
 	}
 	git.EnsureIsFeatureBranch(result.BranchToShip, "Only feature branches can be shipped.")
 	prompt.EnsureKnowsParentBranches([]string{result.BranchToShip})
-	ensureParentBranchIsMainOrPerennialBranch(result.BranchToShip)
+	if !shipToParent {
+		ensureParentBranchIsMainOrPerennialBranch(result.BranchToShip)
+	}
 	return
 }
 
@@ -149,5 +154,6 @@ func getCanShipWithDriver(branch, parentBranch string) (bool, string) {
 
 func init() {
 	shipCmd.Flags().StringVarP(&commitMessage, "message", "m", "", "Specify the commit message for the squash commit")
+	shipCmd.Flags().BoolVar(&shipToParent, "shipToParent", false, "If set, squash merge to the parent feature branch")
 	RootCmd.AddCommand(shipCmd)
 }
